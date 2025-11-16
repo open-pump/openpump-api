@@ -18,7 +18,45 @@ The most comprehensive open-source Pump.fun intelligence API for Solana.
 - **Redis Caching** - High-performance response times
 - **PostgreSQL Storage** - Persistent data and API key management
 - **OpenAPI/Swagger Docs** - Full API documentation
-- **Next.js Dashboard** - Beautiful frontend with real-time token monitoring
+
+## What You Can Build
+
+OpenPump API provides the foundation for building powerful Pump.fun applications:
+
+### Trading Bots
+```javascript
+// Auto-buy tokens that meet your criteria
+ws.on('token_enriched', (token) => {
+  if (token.quality_score > 70 && token.progress < 30) {
+    executeBuy(token.mint, 0.1); // Buy 0.1 SOL worth
+  }
+});
+```
+
+### Analytics Dashboards
+- Track bonding curve progress across multiple tokens
+- Visualize market cap trends and graduation rates
+- Monitor creator wallet patterns
+
+### Telegram/Discord Bots
+- Alert channels when high-quality tokens launch
+- Track specific tokens and notify on trades
+- Share token stats with community
+
+### Research Tools
+- Analyze token quality metrics at scale
+- Study bonding curve dynamics
+- Track successful vs failed launches
+
+### Portfolio Trackers
+- Monitor your Pump.fun holdings
+- Calculate unrealized P&L
+- Track graduation events
+
+### Sniping Tools
+- Get millisecond-level trade notifications
+- Filter tokens by customizable criteria
+- React faster than manual traders
 
 ## Quick Start
 
@@ -33,7 +71,7 @@ The most comprehensive open-source Pump.fun intelligence API for Solana.
 
 ```bash
 # Clone the repository
-git clone https://github.com/openpump/openpump-api.git
+git clone https://github.com/abracadabra50/openpump-api.git
 cd openpump-api
 
 # Install dependencies
@@ -69,16 +107,6 @@ npm run db:seed
 # 4. Start the server
 npm run dev
 ```
-
-### Running the Frontend
-
-```bash
-cd web
-npm install
-npm run dev
-```
-
-Frontend available at `http://localhost:3002`
 
 ## API Endpoints
 
@@ -291,8 +319,8 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 ## Support
 
 - **Documentation**: `http://localhost:3000/docs` (Swagger UI)
-- **Issues**: [GitHub Issues](https://github.com/openpump/openpump-api/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/openpump/openpump-api/discussions)
+- **Issues**: [GitHub Issues](https://github.com/abracadabra50/openpump-api/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/abracadabra50/openpump-api/discussions)
 - **Email**: support@openpump.io
 
 ## Acknowledgments
