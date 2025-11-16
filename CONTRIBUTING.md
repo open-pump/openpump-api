@@ -168,9 +168,8 @@ When adding new endpoints:
 
 ## Questions?
 
-- Open a GitHub Discussion
+- Open a [GitHub Discussion](https://github.com/open-pump/openpump-api/discussions)
 - Join our Discord (coming soon)
-- Email: contributors@openpump.io
 
 ## License
 

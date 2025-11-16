@@ -18,7 +18,7 @@ We take security seriously. If you discover a security vulnerability, please fol
 
 ### Do
 
-1. **Email us directly** at security@openpump.io
+1. **Open a private security advisory** on the [GitHub Security tab](https://github.com/open-pump/openpump-api/security/advisories/new)
 2. Include:
    - Description of the vulnerability
    - Steps to reproduce

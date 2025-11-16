@@ -71,7 +71,7 @@ ws.on('token_enriched', (token) => {
 
 ```bash
 # Clone the repository
-git clone https://github.com/abracadabra50/openpump-api.git
+git clone https://github.com/open-pump/openpump-api.git
 cd openpump-api
 
 # Install dependencies
@@ -319,9 +319,8 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 ## Support
 
 - **Documentation**: `http://localhost:3000/docs` (Swagger UI)
-- **Issues**: [GitHub Issues](https://github.com/abracadabra50/openpump-api/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/abracadabra50/openpump-api/discussions)
-- **Email**: support@openpump.io
+- **Issues**: [GitHub Issues](https://github.com/open-pump/openpump-api/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/open-pump/openpump-api/discussions)
 
 ## Acknowledgments
 
