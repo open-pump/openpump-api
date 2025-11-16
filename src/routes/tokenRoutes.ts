@@ -342,4 +342,232 @@ export async function tokenRoutes(fastify: FastifyInstance) {
       };
     }
   );
+
+  // GET /v1/tokens/:address/ohlcv - Get OHLCV candlestick data via GeckoTerminal
+  fastify.get(
+    '/tokens/:address/ohlcv/:timeframe',
+    {
+      schema: {
+        description: 'Get OHLCV candlestick data for a token (via GeckoTerminal)',
+        tags: ['Tokens'],
+        params: {
+          type: 'object',
+          properties: {
+            address: { type: 'string', description: 'Token mint address' },
+            timeframe: {
+              type: 'string',
+              enum: ['day', 'hour', 'minute'],
+              description: 'Candlestick timeframe'
+            },
+          },
+          required: ['address', 'timeframe'],
+        },
+        querystring: {
+          type: 'object',
+          properties: {
+            aggregate: { type: 'number', description: 'Aggregation period (e.g., 1, 5, 15 for minutes)', default: 1 },
+            limit: { type: 'number', description: 'Number of candles to return', default: 100 },
+          },
+        },
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: { address: string; timeframe: string };
+        Querystring: { aggregate?: number; limit?: number };
+      }>,
+      reply: FastifyReply
+    ) => {
+      const { address, timeframe } = request.params;
+      const { aggregate = 1, limit = 100 } = request.query;
+
+      try {
+        // First get the pool address for this token from GeckoTerminal
+        const searchResponse = await fetch(
+          `https://api.geckoterminal.com/api/v2/search/pools?query=${address}&network=solana`
+        );
+        const searchData = await searchResponse.json() as { data?: Array<{ id: string }> };
+
+        if (!searchData.data || searchData.data.length === 0) {
+          return reply.code(404).send({
+            success: false,
+            error: {
+              code: 'POOL_NOT_FOUND',
+              message: 'No liquidity pool found for this token on GeckoTerminal',
+            },
+            timestamp: new Date().toISOString(),
+          });
+        }
+
+        // Get the first pool (most liquid)
+        const poolId = searchData.data[0].id;
+        const poolAddress = poolId.split('_')[1]; // Format: solana_poolAddress
+
+        // Fetch OHLCV data
+        const ohlcvResponse = await fetch(
+          `https://api.geckoterminal.com/api/v2/networks/solana/pools/${poolAddress}/ohlcv/${timeframe}?aggregate=${aggregate}&limit=${limit}`
+        );
+        const ohlcvData = await ohlcvResponse.json();
+
+        return {
+          success: true,
+          data: ohlcvData,
+          meta: {
+            token: address,
+            pool: poolAddress,
+            timeframe,
+            aggregate,
+            source: 'geckoterminal',
+          },
+          timestamp: new Date().toISOString(),
+        };
+      } catch (error) {
+        return reply.code(500).send({
+          success: false,
+          error: {
+            code: 'OHLCV_FETCH_ERROR',
+            message: 'Failed to fetch OHLCV data from GeckoTerminal',
+          },
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+  );
+
+  // GET /v1/tokens/:address/trades - Get recent trades via GeckoTerminal
+  fastify.get(
+    '/tokens/:address/trades',
+    {
+      schema: {
+        description: 'Get recent trades for a token (via GeckoTerminal)',
+        tags: ['Tokens'],
+        params: {
+          type: 'object',
+          properties: {
+            address: { type: 'string', description: 'Token mint address' },
+          },
+          required: ['address'],
+        },
+      },
+    },
+    async (request: FastifyRequest<{ Params: { address: string } }>, reply: FastifyReply) => {
+      const { address } = request.params;
+
+      try {
+        // Get pool address
+        const searchResponse = await fetch(
+          `https://api.geckoterminal.com/api/v2/search/pools?query=${address}&network=solana`
+        );
+        const searchData = await searchResponse.json() as { data?: Array<{ id: string }> };
+
+        if (!searchData.data || searchData.data.length === 0) {
+          return reply.code(404).send({
+            success: false,
+            error: {
+              code: 'POOL_NOT_FOUND',
+              message: 'No liquidity pool found for this token',
+            },
+            timestamp: new Date().toISOString(),
+          });
+        }
+
+        const poolAddress = searchData.data[0].id.split('_')[1];
+
+        // Fetch trades
+        const tradesResponse = await fetch(
+          `https://api.geckoterminal.com/api/v2/networks/solana/pools/${poolAddress}/trades`
+        );
+        const tradesData = await tradesResponse.json();
+
+        return {
+          success: true,
+          data: tradesData,
+          meta: {
+            token: address,
+            pool: poolAddress,
+            source: 'geckoterminal',
+          },
+          timestamp: new Date().toISOString(),
+        };
+      } catch (error) {
+        return reply.code(500).send({
+          success: false,
+          error: {
+            code: 'TRADES_FETCH_ERROR',
+            message: 'Failed to fetch trades from GeckoTerminal',
+          },
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+  );
+
+  // GET /v1/tokens/:address/stats - Get token statistics via GeckoTerminal
+  fastify.get(
+    '/tokens/:address/stats',
+    {
+      schema: {
+        description: 'Get token statistics including 24h volume, price change, etc.',
+        tags: ['Tokens'],
+        params: {
+          type: 'object',
+          properties: {
+            address: { type: 'string', description: 'Token mint address' },
+          },
+          required: ['address'],
+        },
+      },
+    },
+    async (request: FastifyRequest<{ Params: { address: string } }>, reply: FastifyReply) => {
+      const { address } = request.params;
+
+      try {
+        // Get pool info which includes stats
+        const searchResponse = await fetch(
+          `https://api.geckoterminal.com/api/v2/search/pools?query=${address}&network=solana`
+        );
+        const searchData = await searchResponse.json() as { data?: Array<{ id: string; attributes?: unknown }> };
+
+        if (!searchData.data || searchData.data.length === 0) {
+          return reply.code(404).send({
+            success: false,
+            error: {
+              code: 'POOL_NOT_FOUND',
+              message: 'No liquidity pool found for this token',
+            },
+            timestamp: new Date().toISOString(),
+          });
+        }
+
+        const pool = searchData.data[0];
+        const poolAddress = pool.id.split('_')[1];
+
+        // Get detailed pool info
+        const poolResponse = await fetch(
+          `https://api.geckoterminal.com/api/v2/networks/solana/pools/${poolAddress}`
+        );
+        const poolData = await poolResponse.json();
+
+        return {
+          success: true,
+          data: poolData,
+          meta: {
+            token: address,
+            pool: poolAddress,
+            source: 'geckoterminal',
+          },
+          timestamp: new Date().toISOString(),
+        };
+      } catch (error) {
+        return reply.code(500).send({
+          success: false,
+          error: {
+            code: 'STATS_FETCH_ERROR',
+            message: 'Failed to fetch stats from GeckoTerminal',
+          },
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+  );
 }
