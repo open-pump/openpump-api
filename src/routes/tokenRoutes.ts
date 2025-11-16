@@ -343,12 +343,12 @@ export async function tokenRoutes(fastify: FastifyInstance) {
     }
   );
 
-  // GET /v1/tokens/:address/ohlcv - Get OHLCV candlestick data via GeckoTerminal
+  // GET /v1/tokens/:address/ohlcv - Get OHLCV candlestick data
   fastify.get(
     '/tokens/:address/ohlcv/:timeframe',
     {
       schema: {
-        description: 'Get OHLCV candlestick data for a token (via GeckoTerminal)',
+        description: 'Get OHLCV candlestick data for a token',
         tags: ['Tokens'],
         params: {
           type: 'object',
@@ -382,7 +382,7 @@ export async function tokenRoutes(fastify: FastifyInstance) {
       const { aggregate = 1, limit = 100 } = request.query;
 
       try {
-        // First get the pool address for this token from GeckoTerminal
+        // First get the pool address for this token
         const searchResponse = await fetch(
           `https://api.geckoterminal.com/api/v2/search/pools?query=${address}&network=solana`
         );
@@ -393,7 +393,7 @@ export async function tokenRoutes(fastify: FastifyInstance) {
             success: false,
             error: {
               code: 'POOL_NOT_FOUND',
-              message: 'No liquidity pool found for this token on GeckoTerminal',
+              message: 'No liquidity pool found for this token',
             },
             timestamp: new Date().toISOString(),
           });
@@ -417,7 +417,7 @@ export async function tokenRoutes(fastify: FastifyInstance) {
             pool: poolAddress,
             timeframe,
             aggregate,
-            source: 'geckoterminal',
+            source: 'dex',
           },
           timestamp: new Date().toISOString(),
         };
@@ -426,7 +426,7 @@ export async function tokenRoutes(fastify: FastifyInstance) {
           success: false,
           error: {
             code: 'OHLCV_FETCH_ERROR',
-            message: 'Failed to fetch OHLCV data from GeckoTerminal',
+            message: 'Failed to fetch OHLCV data',
           },
           timestamp: new Date().toISOString(),
         });
@@ -434,12 +434,12 @@ export async function tokenRoutes(fastify: FastifyInstance) {
     }
   );
 
-  // GET /v1/tokens/:address/trades - Get recent trades via GeckoTerminal
+  // GET /v1/tokens/:address/trades - Get recent trades
   fastify.get(
     '/tokens/:address/trades',
     {
       schema: {
-        description: 'Get recent trades for a token (via GeckoTerminal)',
+        description: 'Get recent trades for a token',
         tags: ['Tokens'],
         params: {
           type: 'object',
@@ -485,7 +485,7 @@ export async function tokenRoutes(fastify: FastifyInstance) {
           meta: {
             token: address,
             pool: poolAddress,
-            source: 'geckoterminal',
+            source: 'dex',
           },
           timestamp: new Date().toISOString(),
         };
@@ -494,7 +494,7 @@ export async function tokenRoutes(fastify: FastifyInstance) {
           success: false,
           error: {
             code: 'TRADES_FETCH_ERROR',
-            message: 'Failed to fetch trades from GeckoTerminal',
+            message: 'Failed to fetch trades',
           },
           timestamp: new Date().toISOString(),
         });
@@ -554,7 +554,7 @@ export async function tokenRoutes(fastify: FastifyInstance) {
           meta: {
             token: address,
             pool: poolAddress,
-            source: 'geckoterminal',
+            source: 'dex',
           },
           timestamp: new Date().toISOString(),
         };
@@ -563,7 +563,7 @@ export async function tokenRoutes(fastify: FastifyInstance) {
           success: false,
           error: {
             code: 'STATS_FETCH_ERROR',
-            message: 'Failed to fetch stats from GeckoTerminal',
+            message: 'Failed to fetch stats',
           },
           timestamp: new Date().toISOString(),
         });
